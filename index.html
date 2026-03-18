@@ -485,14 +485,12 @@
 
     // Get word for a specific day (deterministic based on date)
     function getWordForDay(dateKey) {
-      // Create a simple hash from the date string
       let hash = 0;
       for (let i = 0; i < dateKey.length; i++) {
         const char = dateKey.charCodeAt(i);
         hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32bit integer
+        hash = hash & hash;
       }
-      // Use absolute value and mod to get index
       const index = Math.abs(hash) % WORDS.length;
       return WORDS[index];
     }
@@ -521,10 +519,9 @@
       countdownEl.textContent = formatted;
       modalCountdown.textContent = formatted;
       
-      // Check if day changed
       const newKey = getTodayKey();
       if (newKey !== todayKey) {
-        location.reload(); // Reload to get new word
+        location.reload();
       }
     }
 
@@ -544,15 +541,11 @@
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) return null;
-        
         const state = JSON.parse(saved);
-        
-        // Check if it's from today
         if (state.dateKey !== todayKey) {
           localStorage.removeItem(STORAGE_KEY);
           return null;
         }
-        
         return state;
       } catch (e) {
         return null;
@@ -564,7 +557,6 @@
       todayKey = getTodayKey();
       targetWord = getWordForDay(todayKey);
       
-      // Try to load saved state
       const savedState = loadState();
       
       if (savedState) {
@@ -582,23 +574,19 @@
       renderBoard();
       renderKeyboard();
       
-      // Restore previous guesses visually
       if (savedState && guesses.length > 0) {
         restorePreviousGuesses();
       }
       
       updateStats();
       updateCountdown();
-      
-      // Start countdown timer
       setInterval(updateCountdown, 1000);
       
-      // Show game over modal if already finished
       if (gameState !== 'playing') {
         setTimeout(() => showGameOverModal(), 500);
       }
       
-      console.log('Today\'s word:', targetWord); // For testing - remove in production
+      console.log('Today\'s word:', targetWord);
     }
 
     // Restore previous guesses without animation
@@ -660,7 +648,6 @@
           keyEl.dataset.key = key;
           keyEl.addEventListener('click', () => handleKeyPress(key));
           
-          // Disable keyboard if game is over
           if (gameState !== 'playing') {
             keyEl.disabled = true;
           }
@@ -729,7 +716,6 @@
             back.className = 'tile-back ' + status;
             tileInner.classList.add('flip');
             
-            // Update keyboard status
             if (status === 'correct') {
               keyboardStatus[letter] = 'correct';
             } else if (status === 'present' && keyboardStatus[letter] !== 'correct') {
@@ -789,11 +775,23 @@
       gameOverOverlay.classList.add('visible');
     }
 
+    // Check if word is in the valid word list
+    function isValidWord(word) {
+      return WORDS.includes(word);
+    }
+
     // Submit guess
     async function submitGuess() {
       if (currentGuess.length !== 5) {
         shakeRow(guesses.length);
         showMessage('أدخل ٥ أحرف');
+        return;
+      }
+
+      // Validate word is in the word bank
+      if (!isValidWord(currentGuess)) {
+        shakeRow(guesses.length);
+        showMessage('الكلمة غير موجودة في القاموس');
         return;
       }
 
@@ -845,13 +843,6 @@
         handleKeyPress(e.key);
       }
     });
-
-    // Close modal when clicking outside (optional - currently disabled for daily game)
-    // gameOverOverlay.addEventListener('click', (e) => {
-    //   if (e.target === gameOverOverlay) {
-    //     gameOverOverlay.classList.remove('visible');
-    //   }
-    // });
 
     // Start the game
     init();
