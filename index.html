@@ -434,6 +434,30 @@
   </div>
 
   <script>
+
+// Ad banner
+let adTime = 5;
+const adCountdown = document.getElementById('adCountdown');
+const adSkipBtn = document.getElementById('skipBtn');
+const adOverlay = document.getElementById('adOverlay');
+
+const adTimer = setInterval(() => {
+  adTime--;
+  adCountdown.textContent = adTime;
+  if (adTime <= 0) {
+    clearInterval(adTimer);
+    adSkipBtn.style.color = 'white';
+    adSkipBtn.style.cursor = 'pointer';
+    adSkipBtn.style.background = 'rgba(245,158,11,0.2)';
+    adSkipBtn.style.borderColor = 'rgba(245,158,11,0.5)';
+    adSkipBtn.innerHTML = 'تخطي ✕';
+  }
+}, 1000);
+
+function skipAd() {
+  if (adTime <= 0) adOverlay.style.display = 'none';
+}
+    
     // Arabic 5-letter words
     const WORDS = [
       'علماء', 'مطقوق', 'متربع', 'خمبقة', 'عالمة',
